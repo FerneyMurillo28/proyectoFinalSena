@@ -1,6 +1,8 @@
 import { Ionicons } from "@expo/vector-icons";
-import React, { useState } from "react";
-import { Image, StyleSheet, Text, View } from "react-native";
+import { useNavigation } from "@react-navigation/native";
+import axios from "axios";
+import React from "react";
+import { Button, Image, StyleSheet, Text, View } from "react-native";
 import StyledText from "./StyleText";
 
 const AlturaRandom = () => {
@@ -8,25 +10,90 @@ const AlturaRandom = () => {
 };
 const ContainerAltura = AlturaRandom();
 
-const RepositoryItem = (data) => {
-  const [status, setStatus] = useState({});
-  const video = React.useRef(null);
+const RepositoryItem = ({
+  id,
+  idUser,
+  title,
+  content,
+  img,
+  date,
+  user,
+  isOnProfile,
+}) => {
+  const navigation = useNavigation();
+
+  const deletePublication = async (id) => {
+    try {
+      const response = await axios.delete(
+        `https://backproyect-zsnb.onrender.com/publicaciones/${id}`
+      );
+
+      console.log("Publicación eliminada:", response.data);
+    } catch (error) {
+      console.error("Error al eliminar la publicación:", error);
+    }
+  };
+
+  const updatePublication = async (dataPublication) => {
+    console.log("Funcion", id, dataPublication);
+
+    try {
+      console.log(
+        `URL de la solicitud PUT: https://backproyect-zsnb.onrender.com/publicaciones/${id}`
+      );
+      const response = await axios.put(
+        `https://backproyect-zsnb.onrender.com/publicaciones/${id}`,
+        dataPublication,
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      const data = response.data;
+      console.log("Usuario actualizado:", data);
+    } catch (error) {
+      console.error("Error al actualizar usuario:", error);
+    }
+  };
 
   return (
-    <View key={data.id} style={[styles.contenedor]}>
+    <View key={id} style={[styles.contenedor]}>
       <View>
         <View style={styles.SpaceContainer}>
-          <StyledText bold>{data.title}</StyledText>
+          <StyledText bold>{title}</StyledText>
           <View style={styles.container}>
-            <StyledText green>{data.date}</StyledText>
+            <StyledText green>{date}</StyledText>
             <Text> • </Text>
             <Ionicons name="earth" size={15} color="grey" />
           </View>
           <View style={styles.texto1}>
-            <StyledText small>{data.content}</StyledText>
+            <StyledText small>{content}</StyledText>
           </View>
         </View>
-        <Image style={styles.image} source={{ uri: data.img }}></Image>
+        <Image style={styles.image} source={{ uri: img }}></Image>
+        {isOnProfile === true ? (
+          <>
+            <Button
+              onPress={() =>
+                navigation.navigate("editar", {
+                  data: { id, idUser, title, content, img, date, user },
+                  updatePublication: updatePublication,
+                })
+              }
+              title="editar"
+              color="#841584"
+            />
+            <Button
+              onPress={() => deletePublication(id)}
+              title="borrar"
+              color="#841584"
+            />
+          </>
+        ) : (
+          <></>
+        )}
       </View>
     </View>
   );

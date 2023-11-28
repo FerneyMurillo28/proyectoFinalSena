@@ -2,14 +2,14 @@ import React from "react";
 import { FlatList, View } from "react-native";
 import RepositoryItem from "./RepositoryItem.jsx";
 
-const RepositoryList = ({ dataPublications }) => {
+const RepositoryList = ({ dataPublications, isOnProfile }) => {
+  console.log("RepositoryList", dataPublications);
   return (
     <FlatList
       data={dataPublications}
-      //ItemSeparatorComponent={()=><Text style={{ borderBottomWidth: 12, padding: 10, borderColor:'#6c757d' }}></Text>}
       renderItem={({ item: repo }) => (
         <View>
-          <RepositoryItem {...repo} />
+          <RepositoryItem {...repo} isOnProfile={isOnProfile} />
         </View>
       )}
     />

@@ -24,6 +24,11 @@ const CustomButonBack = ({ onPress }) => (
     <FontAwesome5 name="chevron-left" size={16} color="white" />
   </TouchableOpacity>
 );
+const CustomButonUnlogin = ({ onPress }) => (
+  <TouchableOpacity onPress={onPress} style={styles.botonC}>
+    <FontAwesome5 name="power-off" size={16} color="white" />
+  </TouchableOpacity>
+);
 
 const TextoSena = () => (
   <View style={styles.Header}>
@@ -38,7 +43,6 @@ export default function App() {
 
   const loadHome = (load) => {
     setIsOnHome(load);
-    console.log("ME EJECUTE LOADHOME", isOnHome);
   };
 
   //Cada vez que cambie isOnHome (login, perfil)
@@ -98,7 +102,7 @@ export default function App() {
             ),
             headerRight: () =>
               AsyncStorage.getItem("IdUser") ? (
-                <CustomButonProfile
+                <CustomButonUnlogin
                   title="volver"
                   onPress={async () => {
                     await AsyncStorage.removeItem("IdUser");
@@ -135,6 +139,12 @@ const styles = StyleSheet.create({
   boton: {
     margin: 5,
     backgroundColor: "#01A6BD",
+    padding: 10,
+    borderRadius: 5,
+  },
+  botonC: {
+    margin: 5,
+    backgroundColor: "red",
     padding: 10,
     borderRadius: 5,
   },

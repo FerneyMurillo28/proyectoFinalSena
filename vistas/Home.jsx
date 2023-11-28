@@ -1,3 +1,4 @@
+import axios from "axios";
 import Constants from "expo-constants";
 import { useFonts } from "expo-font";
 import { LinearGradient } from "expo-linear-gradient";
@@ -16,16 +17,23 @@ const Home = ({ loadHome }) => {
   //realiza la peticion de las publicaciones
   const getDataPublications = async () => {
     try {
-      const response = await fetch(
+      const response = await axios.get(
         "https://backproyect-zsnb.onrender.com/publicaciones"
       );
-      const data = await response.json();
-      setdataPublications(data);
+
+      const data = response.data;
+
+      const sortedData = data.sort((a, b) => {
+        const dateA = new Date(a.date);
+        const dateB = new Date(b.date);
+        return dateB - dateA;
+      });
+
+      setdataPublications(sortedData);
     } catch (error) {
       console.log(error);
     }
   };
-
   useEffect(() => {
     async function prepare() {
       await SplashScreen.preventAutoHideAsync();

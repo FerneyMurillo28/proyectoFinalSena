@@ -1,96 +1,206 @@
-import { StatusBar } from 'expo-status-bar';
-import React, { useState, useEffect } from 'react';
-import { Input, StyleSheet, Text, TextInput, View, Button, Alert, ImageBackground, ScrollView, RefreshControl, Image, InputAccessoryView  } from 'react-native';
-import * as ImagePicker from 'expo-image-picker';
+import * as ImagePicker from "expo-image-picker";
+import { StatusBar } from "expo-status-bar";
+import React, { useState } from "react";
+import {
+  Button,
+  Image,
+  ImageBackground,
+  RefreshControl,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  View,
+} from "react-native";
+import Toast from "react-native-toast-message";
+import { fileUpload } from "../hooks/FileUpload";
 
+function AgregarDatosImagen({ navigation, route }) {
+  const [refreshing, setRefreshing] = React.useState(false);
 
-function AgregarDatosImagen({navigation}){
+  const onRefresh = React.useCallback(() => {
+    setRefreshing(true);
+    setTimeout(() => {
+      setRefreshing(false);
+    }, 1000);
+  }, []);
 
-    const [refreshing, setRefreshing] = React.useState(false);
+  const [image, setImage] = useState();
+  const [title, setTitle] = useState("");
+  const [content, setContent] = useState("");
 
-    const onRefresh = React.useCallback(() => {
-      setRefreshing(true);
-      setTimeout(() => {
-        setRefreshing(false);
-      }, 1000);
-    }, []);
-  
-    const [image, setImage] = useState('');
-    const [progress, setProgress] = useState(0);
-    const [files, setFiles] = useState([]);
-    
-    async function pickImage() {
-      let result = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: ImagePicker.MediaTypeOptions.Images,
-        allowsEditing: true,
-        aspect: [3, 4],
-        quality: 1,
-      });
-  
-      if (!result.canceled) {
-        setImage(result.assets[0].uri);
-        await uploadImage(result.assets[0].uri, "image");
-      }
+  const pickImage = async () => {
+    let data = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      aspect: [3, 4],
+      quality: 1,
+    });
+
+    if (!data.canceled) {
+      let imageFile = {
+        uri: data.uri,
+        type: `test/${data.uri.split(".")[1]}`,
+        name: `test.${data.uri.split(".")[1]}`,
+      };
+      fileUpload(imageFile)
+        .then((response) => {
+          setImage(response);
+          console.log("respuesta del CLOUDYNARY", response);
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+    }
+  };
+
+  // Generacion de un id aleatorio UNICO que se asigna al usuario a la hora de ser registrado
+  const generarId = () => {
+    const characters =
+      "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+    let result = "";
+    const charactersLength = characters.length;
+
+    for (let i = 0; i < 30; i++) {
+      result += characters.charAt(Math.floor(Math.random() * charactersLength));
     }
 
-  return(
-  <ScrollView contentContainerStyle={styles.scrollview}
-  refreshControl={
-    <RefreshControl refreshing={refreshing} onRefresh={onRefresh} title='Refreshing Screen'/>
-  }
-  >
-    <View style={styles.container}>
-      <ImageBackground 
-        resizeMode='cover' 
-        style={styles.Bgimage}
-      >
-        <Text style={styles.espaciado}>Ingresa el titulo de la publicación</Text>
-        <TextInput style={styles.cajas1} placeholder="Título" onChangeText={(value) => handleChangeText('titulo', value)}></TextInput>
-        <Text style={styles.espaciado}>Ingresa el contenido de la publicación</Text>
-        <TextInput style={styles.cajas2} placeholder="Contenido" onChangeText={(value) => handleChangeText('cuerpo', value)}   multiline></TextInput>
-        <Button
-          title='Seleccionar imagen desde la galeria'
-          onPress={pickImage}
+    return result;
+  };
+
+  const createPublication = async (publication) => {
+    try {
+      const response = await fetch(
+        "https://backproyect-zsnb.onrender.com/publicaciones",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(publication),
+        }
+      );
+
+      const data = await response.json();
+      console.log("Publicacion creada:", data);
+    } catch (error) {
+      console.error("Error al crear la publicacion:", error);
+    }
+  };
+
+  const getCurrentDate = () => {
+    const currentDate = new Date();
+    const year = currentDate.getFullYear();
+    const month = (currentDate.getMonth() + 1).toString().padStart(2, "0");
+    const day = currentDate.getDate().toString().padStart(2, "0");
+
+    return `${year}-${month}-${day}`;
+  };
+
+  const handleSubmit = () => {
+    if (!image) {
+      Toast.show({
+        type: "error",
+        text1: "Rellene todos los campos",
+      });
+      return;
+    }
+
+    const data = {
+      id: generarId(),
+      idUser: route.params.userId,
+      title: title,
+      content: content,
+      img: image,
+      date: getCurrentDate(),
+      user: route.params.userName,
+    };
+    createPublication(data);
+
+    Toast.show({
+      type: "info",
+      text1: "Publicacion creada con exito",
+    });
+
+    setTimeout(() => {
+      navigation.navigate("perfil");
+    }, 1000);
+  };
+
+  return (
+    <ScrollView
+      contentContainerStyle={styles.scrollview}
+      refreshControl={
+        <RefreshControl
+          refreshing={refreshing}
+          onRefresh={onRefresh}
+          title="Refreshing Screen"
         />
-        {image && (<Image source={{uri: image}} style={{width: 200, height: 200, alignSelf: 'center'}}/> )}
-        <View style={styles.fixToText}>
+      }
+    >
+      <View style={styles.container}>
+        <ImageBackground resizeMode="cover" style={styles.Bgimage}>
+          <Text style={styles.espaciado}>
+            Ingresa el titulo de la publicación
+          </Text>
+          <TextInput
+            style={styles.cajas1}
+            placeholder="Título"
+            onChangeText={setTitle}
+          ></TextInput>
+          <Text style={styles.espaciado}>
+            Ingresa el contenido de la publicación
+          </Text>
+          <TextInput
+            style={styles.cajas2}
+            placeholder="Contenido"
+            onChangeText={setContent}
+            multiline
+          ></TextInput>
           <Button
-            color='red'
-            title="Cancelar"
-            onPress={() => [
-              navigation.navigate('perfil')
-            ]}
+            title="Seleccionar imagen desde la galeria"
+            onPress={pickImage}
           />
-          <Button
-            color='#2ECC71'
-            title="Publicar"
-            onPress={() => [
-              navigation.navigate('perfil')
-            ]}
-          />
-          <StatusBar style='auto' />
-        </View>
-      </ImageBackground>
-    </View>
-  </ScrollView>
-  )
+          {image && (
+            <Image
+              source={{ uri: image }}
+              style={{ width: 200, height: 200, alignSelf: "center" }}
+            />
+          )}
+          <View style={styles.fixToText}>
+            <Button
+              color="red"
+              title="Cancelar"
+              onPress={() => [navigation.navigate("perfil")]}
+            />
+            <Button
+              color="#2ECC71"
+              title="Publicar"
+              onPress={() => handleSubmit()}
+            />
+            <StatusBar style="auto" />
+          </View>
+        </ImageBackground>
+      </View>
+    </ScrollView>
+  );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 10,
-    align: 'center',
-    alignItems: 'center',
-    justifyContent: 'center',
+    align: "center",
+    alignItems: "center",
+    justifyContent: "center",
   },
   container2: {
-    backgroundColor: 'white',
+    backgroundColor: "white",
   },
   cajas1: {
     borderWidth: 1,
-    backgroundColor: 'white',
-    height : 40,
+    backgroundColor: "white",
+    height: 40,
     minWidth: 300,
     maxWidth: 300,
     margin: 12,
@@ -98,7 +208,7 @@ const styles = StyleSheet.create({
   },
   cajas2: {
     borderWidth: 1,
-    backgroundColor: 'white',
+    backgroundColor: "white",
     minWidth: 300,
     maxWidth: 300,
     minHeight: 200,
@@ -106,36 +216,36 @@ const styles = StyleSheet.create({
     padding: 10,
   },
   espaciado: {
-    textAlign: 'center',
+    textAlign: "center",
     padding: 10,
-    fontSize: 16
+    fontSize: 16,
   },
   fixToText: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    padding: 10
+    flexDirection: "row",
+    justifyContent: "space-between",
+    padding: 10,
   },
   Bgimage: {
     flex: 1,
-    justifyContent: 'center',
+    justifyContent: "center",
   },
   image: {
-    alignSelf: 'center',
+    alignSelf: "center",
     height: 200,
     width: 200,
   },
   text: {
-    color: 'white',
+    color: "white",
     fontSize: 42,
     lineHeight: 84,
-    fontWeight: 'bold',
-    textAlign: 'center',
-    backgroundColor: '#000000c0',
+    fontWeight: "bold",
+    textAlign: "center",
+    backgroundColor: "#000000c0",
   },
   scrollview: {
     flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
   },
 });
 

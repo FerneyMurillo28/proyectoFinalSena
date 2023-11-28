@@ -1,7 +1,7 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import axios from "axios";
 import React, { useEffect, useState } from "react";
 import {
-  Button,
   Image,
   ScrollView,
   StyleSheet,
@@ -11,12 +11,12 @@ import {
 } from "react-native";
 import FontAwesome5 from "react-native-vector-icons/FontAwesome5";
 import RepositoryList from "./RepositoryList";
-import ContPerfil from "./contenidoPerfil";
 
 //Con route se refiere al dato que viene como prop del login (Id del usuario)
 const Perfil = ({ navigation, route }) => {
   const [dataUser, setDataUser] = useState({});
   const [userPublications, setUserPublications] = useState();
+  const [isOnProfile, setisOnProfile] = useState(false);
 
   //route.params se refiere a los parametros enviados desde el prop, en este caso el id
   //route.params es lo mismo que por ejemplo user.id
@@ -26,30 +26,32 @@ const Perfil = ({ navigation, route }) => {
   const getDataPerfil = async () => {
     try {
       const storedUserId = await AsyncStorage.getItem("IdUser");
-      //Si el id del storage ya existe lo asigna al estado userId
+
+      // Si el id del storage ya existe, lo asigna al estado userId
       if (storedUserId) {
         setUserId(storedUserId);
       }
 
-      //si alguno de los 2 datos existe (Id del usuario) lo toma y lo usa para hacer la peticion
+      // Si alguno de los 2 datos existe (Id del usuario) lo toma y lo usa para hacer la peticion
       if (userId || storedUserId) {
-        const responseDataUser = await fetch(
+        const responseDataUser = await axios.get(
           `https://backproyect-zsnb.onrender.com/usuarios?id=${
             userId?.userId || storedUserId
           }`
         );
-        //Se realiza la peticion de las publicaciones que contengan el id del usuario en su informacion, para mejorar rendimiento y tener mejor manejo de la informacion
-        const responsePublications = await fetch(
+
+        // Se realiza la peticion de las publicaciones que contengan el id del usuario en su informacion, para mejorar rendimiento y tener mejor manejo de la informacion
+        const responsePublications = await axios.get(
           `https://backproyect-zsnb.onrender.com/publicaciones?idUser=${
             userId?.userId || storedUserId
           }`
         );
-        const dataUser = await responseDataUser.json();
-        const dataUserPublications = await responsePublications.json();
+
+        const dataUser = responseDataUser.data;
+        const dataUserPublications = responsePublications.data;
 
         setDataUser(dataUser[0]);
         setUserPublications(dataUserPublications);
-        console.log(dataUserPublications);
       } else {
         // Hacer algo si userId o storedUserId no existen
         return;
@@ -59,14 +61,22 @@ const Perfil = ({ navigation, route }) => {
     }
   };
 
+  const createPublication = () => {};
+
   //ejecuta la funcion al cargar la vista
   useEffect(() => {
+    setisOnProfile(true);
     getDataPerfil();
   }, []);
 
   const BotonAgregar = () => (
     <TouchableOpacity
-      onPress={() => navigation.navigate("agregar")}
+      onPress={() =>
+        navigation.navigate("agregar", {
+          userId: userId,
+          userName: dataUser,
+        })
+      }
       style={styles.boton}
     >
       <View style={styles.contenido}>
@@ -107,15 +117,10 @@ const Perfil = ({ navigation, route }) => {
             <ScrollView contentContainerStyle={styles.scrollViewContent}>
               <View>
                 <Text style={styles.texto2}>Publicaciones:</Text>
-                <RepositoryList dataPublications={userPublications} />
-                <View>
-                  <ContPerfil />
-                  <Button
-                    onPress={() => navigation.navigate("editar")}
-                    title="editar"
-                    color="#841584"
-                  />
-                </View>
+                <RepositoryList
+                  dataPublications={userPublications}
+                  isOnProfile={isOnProfile}
+                />
               </View>
             </ScrollView>
           </View>

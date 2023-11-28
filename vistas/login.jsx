@@ -1,5 +1,6 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useNavigation } from "@react-navigation/native";
+import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { Button, StyleSheet, Text, TextInput, View } from "react-native";
 import Toast from "react-native-toast-message";
@@ -19,13 +20,13 @@ export default function LoginScreen({ loadHome }) {
   //Funcion de logueo con Email & Password
   const login = async () => {
     try {
-      const response = await fetch(
+      const response = await axios.get(
         "https://backproyect-zsnb.onrender.com/usuarios"
       );
-      const data = await response.json();
+      const data = response.data;
       setdataUsers(data);
     } catch (error) {
-      console.log(error);
+      console.error(error);
     }
   };
 
