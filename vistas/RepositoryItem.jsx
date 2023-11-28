@@ -2,7 +2,8 @@ import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import axios from "axios";
 import React from "react";
-import { Button, Image, StyleSheet, Text, View } from "react-native";
+import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import FontAwesome5 from "react-native-vector-icons/FontAwesome5";
 import StyledText from "./StyleText";
 
 const AlturaRandom = () => {
@@ -20,6 +21,16 @@ const RepositoryItem = ({
   user,
   isOnProfile,
 }) => {
+  const CustomButonDelete = ({ onPress }) => (
+    <TouchableOpacity onPress={onPress} style={styles.botonC}>
+      <FontAwesome5 name="trash" size={16} color="white" />
+    </TouchableOpacity>
+  );
+  const CustomButonActu = ({ onPress }) => (
+    <TouchableOpacity onPress={onPress} style={styles.botonA}>
+      <FontAwesome5 name="edit" size={16} color="white" />
+    </TouchableOpacity>
+  );
   const navigation = useNavigation();
 
   const deletePublication = async (id) => {
@@ -72,10 +83,20 @@ const RepositoryItem = ({
             <StyledText small>{content}</StyledText>
           </View>
         </View>
-        <Image style={styles.image} source={{ uri: img }}></Image>
+        <Image
+          style={{
+            width: "100%", // Ajusta el ancho al 100% del contenedor
+            aspectRatio: 1, // Mantén la relación de aspecto de la imagen
+            alignSelf: "center",
+          }}
+          resizeMode="contain"
+          source={{ uri: img }}
+        ></Image>
         {isOnProfile === true ? (
-          <>
-            <Button
+          <View
+            style={{ flexDirection: "row", justifyContent: "space-between" }}
+          >
+            <CustomButonActu
               onPress={() =>
                 navigation.navigate("editar", {
                   data: { id, idUser, title, content, img, date, user },
@@ -85,12 +106,11 @@ const RepositoryItem = ({
               title="editar"
               color="#841584"
             />
-            <Button
+            <CustomButonDelete
               onPress={() => deletePublication(id)}
               title="borrar"
-              color="#841584"
             />
-          </>
+          </View>
         ) : (
           <></>
         )}
@@ -108,6 +128,18 @@ const styles = StyleSheet.create({
     margin: 10,
     alignSelf: "center",
   },
+  botonC: {
+    margin: 5,
+    backgroundColor: "red",
+    padding: 10,
+    borderRadius: 5,
+  },
+  botonA: {
+    margin: 5,
+    backgroundColor: "#5EB319",
+    padding: 10,
+    borderRadius: 5,
+  },
   contenImportante: {
     height: ContainerAltura,
   },
@@ -121,12 +153,12 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "flex-end",
   },
-  image: {
-    width: "100%",
-    height: null,
-    aspectRatio: 1,
-    borderBottomLeftRadius: 20,
-    borderBottomRightRadius: 20,
+  imagess: {
+    width: "100%", // Ajusta el ancho al 100% del contenedor
+    aspectRatio: 1, // Mantén la relación de aspecto de la imagen
+    alignSelf: "center",
+    borderBottomLeftRadius: 10,
+    borderBottomRightRadius: 10,
   },
   texto1: {
     paddingVertical: 6,

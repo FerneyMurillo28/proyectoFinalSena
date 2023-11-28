@@ -110,7 +110,7 @@ function EditarDatos({ navigation, route }) {
             <Button
               color="red"
               title="Cancelar"
-              onPress={() => [navigation.navigate("Perfil")]}
+              onPress={() => [navigation.navigate("perfil")]}
             />
             <Button
               color="#2ECC71"

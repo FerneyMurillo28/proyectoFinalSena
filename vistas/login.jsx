@@ -30,6 +30,30 @@ export default function LoginScreen({ loadHome }) {
     }
   };
 
+  const updatePublication = async (IdPublication, dataPublication) => {
+    console.log("Funcion", route.params.data.id, dataPublication);
+
+    try {
+      console.log(
+        `URL de la solicitud PUT: http://localhost:3000/publicaciones/${route.params.data.id}`
+      );
+      const response = await axios.put(
+        `http://localhost:3000/publicaciones/${route.params.data.id}`,
+        dataPublication,
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      const data = response.data;
+      console.log("Usuario actualizado:", data);
+    } catch (error) {
+      console.error("Error al actualizar usuario:", error);
+    }
+  };
+
   //Se filtra los datos de la api y se asignan a dataVerification
   //Se asigna el dato filtrado del al storage del telefono
   //en caso de que el usuario si exista y se verifique se asigna el id del user al storage para tenerlo global y trabajar con el

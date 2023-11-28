@@ -115,8 +115,30 @@ export default function App() {
               ),
           })}
         />
-        <Stack.Screen name="agregar" component={AgregarDatosImagen} />
-        <Stack.Screen name="editar" component={EditarDatos} />
+        <Stack.Screen
+          name="agregar"
+          component={AgregarDatosImagen}
+          options={({ navigation }) => ({
+            headerLeft: () => (
+              <CustomButonBack
+                title="volver"
+                onPress={() => navigation.navigate("perfil")}
+              />
+            ),
+          })}
+        />
+        <Stack.Screen
+          name="editar"
+          component={EditarDatos}
+          options={({ navigation }) => ({
+            headerLeft: () => (
+              <CustomButonBack
+                title="volver"
+                onPress={() => navigation.navigate("perfil")}
+              />
+            ),
+          })}
+        />
         <Stack.Screen
           name="login"
           component={() => <LoginScreen loadHome={loadHome} />}

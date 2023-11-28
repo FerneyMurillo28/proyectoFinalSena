@@ -1,3 +1,4 @@
+import axios from "axios";
 import * as ImagePicker from "expo-image-picker";
 import { StatusBar } from "expo-status-bar";
 import React, { useState } from "react";
@@ -5,7 +6,6 @@ import {
   Button,
   Image,
   ImageBackground,
-  RefreshControl,
   ScrollView,
   StyleSheet,
   Text,
@@ -33,7 +33,6 @@ function AgregarDatosImagen({ navigation, route }) {
     let data = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
       allowsEditing: true,
-      aspect: [3, 4],
       quality: 1,
     });
 
@@ -70,18 +69,17 @@ function AgregarDatosImagen({ navigation, route }) {
 
   const createPublication = async (publication) => {
     try {
-      const response = await fetch(
+      const response = await axios.post(
         "https://backproyect-zsnb.onrender.com/publicaciones",
+        publication,
         {
-          method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify(publication),
         }
       );
 
-      const data = await response.json();
+      const data = response.data;
       console.log("Publicacion creada:", data);
     } catch (error) {
       console.error("Error al crear la publicacion:", error);
@@ -128,60 +126,58 @@ function AgregarDatosImagen({ navigation, route }) {
   };
 
   return (
-    <ScrollView
-      contentContainerStyle={styles.scrollview}
-      refreshControl={
-        <RefreshControl
-          refreshing={refreshing}
-          onRefresh={onRefresh}
-          title="Refreshing Screen"
-        />
-      }
-    >
-      <View style={styles.container}>
-        <ImageBackground resizeMode="cover" style={styles.Bgimage}>
-          <Text style={styles.espaciado}>
-            Ingresa el titulo de la publicación
-          </Text>
-          <TextInput
-            style={styles.cajas1}
-            placeholder="Título"
-            onChangeText={setTitle}
-          ></TextInput>
-          <Text style={styles.espaciado}>
-            Ingresa el contenido de la publicación
-          </Text>
-          <TextInput
-            style={styles.cajas2}
-            placeholder="Contenido"
-            onChangeText={setContent}
-            multiline
-          ></TextInput>
-          <Button
-            title="Seleccionar imagen desde la galeria"
-            onPress={pickImage}
-          />
-          {image && (
-            <Image
-              source={{ uri: image }}
-              style={{ width: 200, height: 200, alignSelf: "center" }}
-            />
-          )}
-          <View style={styles.fixToText}>
+    <ScrollView contentContainerStyle={styles.scrollview}>
+      <ScrollView>
+        <View style={styles.container}>
+          <ImageBackground resizeMode="cover" style={styles.Bgimage}>
+            <Text style={styles.espaciado}>
+              Ingresa el titulo de la publicación
+            </Text>
+            <TextInput
+              style={styles.cajas1}
+              placeholder="Título"
+              onChangeText={setTitle}
+            ></TextInput>
+            <Text style={styles.espaciado}>
+              Ingresa el contenido de la publicación
+            </Text>
+            <TextInput
+              style={styles.cajas2}
+              placeholder="Contenido"
+              onChangeText={setContent}
+              multiline
+            ></TextInput>
             <Button
-              color="red"
-              title="Cancelar"
-              onPress={() => [navigation.navigate("perfil")]}
+              title="Seleccionar imagen desde la galeria"
+              onPress={pickImage}
             />
-            <Button
-              color="#2ECC71"
-              title="Publicar"
-              onPress={() => handleSubmit()}
-            />
-            <StatusBar style="auto" />
-          </View>
-        </ImageBackground>
-      </View>
+            {image && (
+              <Image
+                source={{ uri: image }}
+                style={{
+                  width: "100%", // Ajusta el ancho al 100% del contenedor
+                  aspectRatio: 1, // Mantén la relación de aspecto de la imagen
+                  alignSelf: "center",
+                }}
+                resizeMode="contain" // Ajusta el modo de redimensionamiento
+              />
+            )}
+            <View style={styles.fixToText}>
+              <Button
+                color="red"
+                title="Cancelar"
+                onPress={() => [navigation.navigate("perfil")]}
+              />
+              <Button
+                color="#2ECC71"
+                title="Publicar"
+                onPress={() => handleSubmit()}
+              />
+              <StatusBar style="auto" />
+            </View>
+          </ImageBackground>
+        </View>
+      </ScrollView>
     </ScrollView>
   );
 }
