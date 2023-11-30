@@ -5,7 +5,7 @@ import React, { useEffect, useState } from "react";
 import { Button, StyleSheet, Text, TextInput, View } from "react-native";
 import Toast from "react-native-toast-message";
 
-export default function LoginScreen({ loadHome }) {
+export default function LoginScreen({ loadHome, setRechargeDataHome }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [messageError, setMessageError] = useState(false);
@@ -64,7 +64,9 @@ export default function LoginScreen({ loadHome }) {
     );
     if (dataVerification) {
       await AsyncStorage.setItem("IdUser", `${dataVerification.id}`);
-      navigation.navigate("perfil", { userId: dataVerification.id });
+      navigation.navigate("perfil", {
+        userId: dataVerification.id,
+      });
     } else {
       Toast.show({
         type: "error",

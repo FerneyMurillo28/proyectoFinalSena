@@ -40,6 +40,7 @@ const TextoSena = () => (
 export default function App() {
   const [userId, setUserId] = useState();
   const [isOnHome, setIsOnHome] = useState(false);
+  const [rechargeDataHome, setRechargeDataHome] = useState(false);
 
   const loadHome = (load) => {
     setIsOnHome(load);
@@ -68,7 +69,9 @@ export default function App() {
       >
         <Stack.Screen
           name="inicio"
-          component={() => <Home loadHome={loadHome} />}
+          component={() => (
+            <Home loadHome={loadHome} rechargeDataHome={rechargeDataHome} />
+          )}
           options={({ navigation }) => ({
             title: "",
             headerRight: () => (
@@ -96,6 +99,7 @@ export default function App() {
                 title="volver"
                 onPress={() => {
                   setIsOnHome(true);
+                  setRechargeDataHome(!rechargeDataHome);
                   navigation.navigate("inicio");
                 }}
               />

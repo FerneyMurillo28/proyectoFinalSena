@@ -15,7 +15,7 @@ import RepositoryList from "./RepositoryList";
 //Con route se refiere al dato que viene como prop del login (Id del usuario)
 const Perfil = ({ navigation, route }) => {
   const [dataUser, setDataUser] = useState({});
-  const [userPublications, setUserPublications] = useState();
+  const [userPublications, setUserPublications] = useState([]);
   const [isOnProfile, setisOnProfile] = useState(false);
 
   //route.params se refiere a los parametros enviados desde el prop, en este caso el id
@@ -61,7 +61,9 @@ const Perfil = ({ navigation, route }) => {
     }
   };
 
-  const createPublication = () => {};
+  const refreshPublications = () => {
+    getDataPerfil();
+  };
 
   //ejecuta la funcion al cargar la vista
   useEffect(() => {
@@ -75,6 +77,7 @@ const Perfil = ({ navigation, route }) => {
         navigation.navigate("agregar", {
           userId: userId,
           userName: dataUser,
+          refreshPublications,
         })
       }
       style={styles.boton}
@@ -120,6 +123,7 @@ const Perfil = ({ navigation, route }) => {
                 <RepositoryList
                   dataPublications={userPublications}
                   isOnProfile={isOnProfile}
+                  refreshPublications={refreshPublications}
                 />
               </View>
             </ScrollView>

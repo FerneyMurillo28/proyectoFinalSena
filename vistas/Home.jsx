@@ -7,13 +7,24 @@ import React, { useCallback, useEffect, useState } from "react";
 import { StyleSheet, View } from "react-native";
 import RepositoryList from "./RepositoryList";
 
-const Home = ({ loadHome }) => {
+const Home = ({ loadHome, rechargeDataHome }) => {
   const [dataPublications, setdataPublications] = useState([]);
 
   const [fontsLoaded] = useFonts({
     Monserrat: require("../assets/fonts/Montserrat-Bold.ttf"),
   });
+  const [modalVisible, setModalVisible] = useState(false);
+  const [selectedImage, setSelectedImage] = useState(null);
+  const [isOnHome, setIsOnHome] = useState(false);
 
+  const openModal = (image) => {
+    setSelectedImage(image);
+    setModalVisible(true);
+  };
+
+  const closeModal = () => {
+    setModalVisible(false);
+  };
   //realiza la peticion de las publicaciones
   const getDataPublications = async () => {
     try {
@@ -43,7 +54,8 @@ const Home = ({ loadHome }) => {
     //ejecuta la funcion de pedida de publicaciones y setea el estado de app.js en true para que vuelva a realizar la peticion al storage del id asignado
     loadHome(true);
     getDataPublications();
-  }, []);
+    console.log("rechargeDataHome del HOME", rechargeDataHome);
+  }, [rechargeDataHome]);
 
   const onLayout = useCallback(async () => {
     if (fontsLoaded) {

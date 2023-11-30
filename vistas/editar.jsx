@@ -1,3 +1,4 @@
+import axios from "axios";
 import * as ImagePicker from "expo-image-picker";
 import { StatusBar } from "expo-status-bar";
 import React, { useState } from "react";
@@ -12,6 +13,7 @@ import {
   TextInput,
   View,
 } from "react-native";
+import Toast from "react-native-toast-message";
 import { fileUpload } from "../hooks/FileUpload";
 
 function EditarDatos({ navigation, route }) {
@@ -20,7 +22,6 @@ function EditarDatos({ navigation, route }) {
   const [image, setImage] = useState(route.params.data.img);
   const [title, setTitle] = useState(route.params.data.title);
   const [content, setContent] = useState(route.params.data.content);
-  const updatePublication = route.params.updatePublication;
 
   const onRefresh = React.useCallback(() => {
     setRefreshing(true);
@@ -61,7 +62,32 @@ function EditarDatos({ navigation, route }) {
     content: content,
     img: image,
     date: route.params.data.date,
-    user: route.params.data.user.user,
+    user: route.params.data.user,
+  };
+
+  const updatePublication = async (dataPublication) => {
+    console.log("Funcion", route.params.data.id, dataPublication);
+
+    try {
+      console.log(
+        `URL de la solicitud PUT: https://backproyect-zsnb.onrender.com/publicaciones/${route.params.data.id}`
+      );
+      const response = await axios.put(
+        `https://backproyect-zsnb.onrender.com/publicaciones/${route.params.data.id}`,
+        dataPublication,
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      const data = response.data;
+      console.log("Usuario actualizado:", data);
+      route.params.refreshPublications();
+    } catch (error) {
+      console.error("Error al actualizar usuario:", error);
+    }
   };
 
   return (
@@ -115,7 +141,14 @@ function EditarDatos({ navigation, route }) {
             <Button
               color="#2ECC71"
               title="Actualizar"
-              onPress={() => updatePublication(data)}
+              onPress={() => {
+                updatePublication(data);
+                Toast.show({
+                  type: "info",
+                  text1: "Publicacion Actualizada con exito",
+                });
+                navigation.navigate("perfil");
+              }}
             />
             <StatusBar style="auto" />
           </View>

@@ -119,6 +119,7 @@ function AgregarDatosImagen({ navigation, route }) {
       type: "info",
       text1: "Publicacion creada con exito",
     });
+    route.params.refreshPublications();
 
     setTimeout(() => {
       navigation.navigate("perfil");

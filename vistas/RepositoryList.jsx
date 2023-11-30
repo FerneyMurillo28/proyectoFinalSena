@@ -2,14 +2,22 @@ import React from "react";
 import { FlatList, View } from "react-native";
 import RepositoryItem from "./RepositoryItem.jsx";
 
-const RepositoryList = ({ dataPublications, isOnProfile }) => {
-  console.log("RepositoryList", dataPublications);
+const RepositoryList = ({
+  dataPublications,
+  isOnProfile,
+  refreshPublications,
+}) => {
+  const publicacionesInvertidas = dataPublications.slice().reverse();
   return (
     <FlatList
-      data={dataPublications}
+      data={publicacionesInvertidas}
       renderItem={({ item: repo }) => (
         <View>
-          <RepositoryItem {...repo} isOnProfile={isOnProfile} />
+          <RepositoryItem
+            {...repo}
+            isOnProfile={isOnProfile}
+            refreshPublications={refreshPublications}
+          />
         </View>
       )}
     />

@@ -1,8 +1,16 @@
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import axios from "axios";
-import React from "react";
-import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import React, { useState } from "react";
+import {
+  Image,
+  Modal,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
+import Toast from "react-native-toast-message";
 import FontAwesome5 from "react-native-vector-icons/FontAwesome5";
 import StyledText from "./StyleText";
 
@@ -20,9 +28,16 @@ const RepositoryItem = ({
   date,
   user,
   isOnProfile,
+  refreshPublications,
 }) => {
   const CustomButonDelete = ({ onPress }) => (
-    <TouchableOpacity onPress={onPress} style={styles.botonC}>
+    <TouchableOpacity
+      onPress={() => {
+        onPress(); // Llama a la función onPress proporcionada
+        refreshPublications();
+      }}
+      style={styles.botonC}
+    >
       <FontAwesome5 name="trash" size={16} color="white" />
     </TouchableOpacity>
   );
@@ -32,6 +47,7 @@ const RepositoryItem = ({
     </TouchableOpacity>
   );
   const navigation = useNavigation();
+  const [modalVisible, setModalVisible] = useState(false);
 
   const deletePublication = async (id) => {
     try {
@@ -40,32 +56,9 @@ const RepositoryItem = ({
       );
 
       console.log("Publicación eliminada:", response.data);
+      refreshPublications();
     } catch (error) {
       console.error("Error al eliminar la publicación:", error);
-    }
-  };
-
-  const updatePublication = async (dataPublication) => {
-    console.log("Funcion", id, dataPublication);
-
-    try {
-      console.log(
-        `URL de la solicitud PUT: https://backproyect-zsnb.onrender.com/publicaciones/${id}`
-      );
-      const response = await axios.put(
-        `https://backproyect-zsnb.onrender.com/publicaciones/${id}`,
-        dataPublication,
-        {
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      );
-
-      const data = response.data;
-      console.log("Usuario actualizado:", data);
-    } catch (error) {
-      console.error("Error al actualizar usuario:", error);
     }
   };
 
@@ -83,15 +76,19 @@ const RepositoryItem = ({
             <StyledText small>{content}</StyledText>
           </View>
         </View>
-        <Image
-          style={{
-            width: "100%", // Ajusta el ancho al 100% del contenedor
-            aspectRatio: 1, // Mantén la relación de aspecto de la imagen
-            alignSelf: "center",
-          }}
-          resizeMode="contain"
-          source={{ uri: img }}
-        ></Image>
+        <TouchableOpacity onPress={() => setModalVisible(true)}>
+          <Image
+            style={{
+              width: "100%", // Ajusta el ancho al 100% del contenedor
+              aspectRatio: 1, // Mantén la relación de aspecto de la imagen
+              alignSelf: "center",
+              borderBottomLeftRadius: 10,
+              borderBottomRightRadius: 10,
+            }}
+            resizeMode="cover"
+            source={{ uri: img }}
+          ></Image>
+        </TouchableOpacity>
         {isOnProfile === true ? (
           <View
             style={{ flexDirection: "row", justifyContent: "space-between" }}
@@ -100,14 +97,20 @@ const RepositoryItem = ({
               onPress={() =>
                 navigation.navigate("editar", {
                   data: { id, idUser, title, content, img, date, user },
-                  updatePublication: updatePublication,
+                  refreshPublications: refreshPublications,
                 })
               }
               title="editar"
               color="#841584"
             />
             <CustomButonDelete
-              onPress={() => deletePublication(id)}
+              onPress={() => {
+                deletePublication(id);
+                Toast.show({
+                  type: "error",
+                  text1: "Publicacion Eliminada",
+                });
+              }}
               title="borrar"
             />
           </View>
@@ -115,6 +118,26 @@ const RepositoryItem = ({
           <></>
         )}
       </View>
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={modalVisible}
+        onRequestClose={() => setModalVisible(false)}
+      >
+        <View style={styles.modalContainer}>
+          <Image
+            source={{ uri: img }}
+            style={styles.modalImage}
+            resizeMode="contain"
+          />
+          <TouchableOpacity
+            onPress={() => setModalVisible(false)}
+            style={styles.closeButton}
+          >
+            <Text style={styles.closeButtonText}>Cerrar</Text>
+          </TouchableOpacity>
+        </View>
+      </Modal>
     </View>
   );
 };
@@ -127,6 +150,29 @@ const styles = StyleSheet.create({
     backgroundColor: "white", // Color de fondo para visualizar el efecto
     margin: 10,
     alignSelf: "center",
+  },
+  modalContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "black",
+  },
+  modalImage: {
+    width: "100%",
+    height: "100%",
+    resizeMode: "contain",
+  },
+  closeButton: {
+    position: "absolute",
+    top: 20,
+    right: 20,
+    padding: 10,
+    backgroundColor: "#5EB319",
+    borderRadius: 5,
+  },
+  closeButtonText: {
+    color: "white",
+    fontWeight: "bold",
   },
   botonC: {
     margin: 5,
