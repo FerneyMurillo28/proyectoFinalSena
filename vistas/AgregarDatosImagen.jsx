@@ -96,7 +96,7 @@ function AgregarDatosImagen({ navigation, route }) {
   };
 
   const handleSubmit = () => {
-    if (!image) {
+    if (!image || !title || !content) {
       Toast.show({
         type: "error",
         text1: "Rellene todos los campos",

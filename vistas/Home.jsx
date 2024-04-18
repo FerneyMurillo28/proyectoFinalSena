@@ -6,7 +6,7 @@ import * as SplashScreen from "expo-splash-screen";
 import React, { useCallback, useEffect, useState } from "react";
 import { StyleSheet, View } from "react-native";
 import RepositoryList from "./RepositoryList";
-
+// eslint-disable-next-line no-console
 const Home = ({ loadHome, rechargeDataHome }) => {
   const [dataPublications, setdataPublications] = useState([]);
 

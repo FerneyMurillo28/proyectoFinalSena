@@ -4,7 +4,7 @@ import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { Button, StyleSheet, Text, TextInput, View } from "react-native";
 import Toast from "react-native-toast-message";
-
+// eslint-disable-next-line
 export default function LoginScreen({ loadHome, setRechargeDataHome }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");

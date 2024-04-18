@@ -34,7 +34,6 @@ function EditarDatos({ navigation, route }) {
     let data = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
       allowsEditing: true,
-      aspect: [3, 4],
       quality: 1,
     });
 
@@ -66,6 +65,13 @@ function EditarDatos({ navigation, route }) {
   };
 
   const updatePublication = async (dataPublication) => {
+    if (!image || !title || !content) {
+      Toast.show({
+        type: "error",
+        text1: "Rellene todos los campos",
+      });
+      return;
+    }
     console.log("Funcion", route.params.data.id, dataPublication);
 
     try {
@@ -142,6 +148,13 @@ function EditarDatos({ navigation, route }) {
               color="#2ECC71"
               title="Actualizar"
               onPress={() => {
+                if (!image || !title || !content) {
+                  Toast.show({
+                    type: "error",
+                    text1: "Rellene todos los campos",
+                  });
+                  return;
+                }
                 updatePublication(data);
                 Toast.show({
                   type: "info",

@@ -11,6 +11,8 @@ import EditarDatos from "./vistas/editar";
 import LoginScreen from "./vistas/login";
 import Perfil from "./vistas/perfil";
 
+console.log("Este es un mensaje de prueba");
+
 const Stack = createStackNavigator();
 
 const CustomButonProfile = ({ onPress }) => (
